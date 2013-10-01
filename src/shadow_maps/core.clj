@@ -82,17 +82,14 @@
   )
 
 ;
-; Metric & Data Tests
-;
-(let
-  [e (first (first(rest toy-dataset)))]
-  (total-cost e)
-  )
-
-
-;
 ; Data translation to an efficient A*
 ;
+
+(def bake-dataset
+  "Makes a dataset out of a datafile"
+
+  )
+
 (def edge-list
   (let [paths (second toy-dataset)
         edges (map (fn [{locs :locations _ :params :as edge}]
@@ -152,4 +149,18 @@
         to-coord (name-to-coord toy-dataset to)]
     (map #(coord-to-name toy-dataset %)(A* edge-list distance from-coord to-coord))
     ))
+
+(defn pprint
+  ;FIXME : This cookie tastes funky
+  "Pretty-prints the path"
+  [path]
+  (let [text (fn [x y]
+               (if (= y "") (str "Reach your destination at" x) (str "Go to " x "\n" y)))]
+    (reduce text "" path)
+    )
+  )
+
+
+
+
 
