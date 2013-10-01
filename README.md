@@ -1,13 +1,11 @@
 # shadow-maps
 
-A Clojure library designed to ... well, that part is up to you.
+A Proof-Of-Concept program that optimzes a walk in the city to avoid the sun. Or noise. Or hamster sightings.
 
 ## Usage
 
-FIXME
+Don't use this yet.
 
 ## License
-
-Copyright © 2013 FIXME
 
 Distributed under the Eclipse Public License, the same as Clojure.
