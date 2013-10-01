@@ -1,5 +1,7 @@
 ; Shadow Maps
 ; 2013, Omer Shapira and Nitzan Bartov
+; Using an implementation of A* http://en.wikipedia.org/wiki/A*_search_algorithm
+;
 
 (ns shadow-maps.core
   (:use [clojure.data.priority-map])
@@ -39,6 +41,8 @@
   ])
  )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;
 ; Metric
@@ -59,14 +63,13 @@
     [{locs :locations _ :params} edge
      loc-a (:loc-geo(first locs))
      loc-b (:loc-geo (second locs))
-     square #(* % %)
-     len (reduce (fn [[a b] [c d]] [(+ a c) (+ b d)]) [loc-a loc-b])
      ]
-    (Math/sqrt (reduce + 0 (map square len)))))
+    (distance loc-a loc-b)))
 
-  ([a b] ; TODO: Unify
+  ([a b]
    (Math/sqrt (reduce + (map #(let [c (- %1 %2)] (* c c)) a b))))
   )
+
 
 (defn total-cost
   "Heuristic total cost function"
