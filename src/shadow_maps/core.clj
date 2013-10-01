@@ -71,38 +71,6 @@
   )
 
 
-(comment (defn total-cost
-  "Heuristic total cost function"
-  [edge]
-  (let
-    [d (distance edge)
-     s (shadow-cost edge)]
-    (* d (+ 1 (* 1 s))) ;walking in the sun is twice as expensive
-    )
-  )
-)
-;
-; Data translation to an efficient A*
-;
-
-(comment
-
-(def bake-dataset
-  "Makes a dataset out of a datafile"
-
-  )
-
-(def edge-list
-  (let [paths (second toy-dataset)
-        edges (map (fn [{locs :locations _ :params :as edge}]
-           [(reduce into (map #(vector (:loc-geo %)) locs)) (total-cost edge)]) paths )]
-    (apply hash-map(reduce into edges))
-    )
-  )
-
-)
-
-
 ;
 ; Algorithm
 ;
@@ -167,7 +135,7 @@
                                               ])
                                          paths)
                               ]
-                          (apply hash-map(reduce into edges))
+                          (apply hash-map (reduce into edges))
                           )
         ]
 
