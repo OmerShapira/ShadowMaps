@@ -7,14 +7,12 @@
   (:use [clojure.data.priority-map])
   )
 
-
 ;
 ; Metric
 ;
 
 (defn shadow-cost [edge] (:sun   (:params edge)))
 (defn noise-cost  [edge] (:noise (:params edge)))
-
 
 (defn distance
   "Returns the distance on the map trail between begin and end"
@@ -30,11 +28,9 @@
      (Math/sqrt (reduce + (map #(let [c (- %1 %2)] (* c c)) a b)))
    ))
 
-
 ;
 ; Algorithm
 ;
-
 
 (defn A*
  "Finds a path between start and goal inside the graph described by edges
@@ -75,7 +71,6 @@
 (defn name-to-coord [dataset n] (:loc-geo (first (filter #(= (:loc-name %) n) (first dataset)))))
 (defn coord-to-name [dataset c] (:loc-name (first (filter #(= (:loc-geo %) c) (first dataset)))))
 
-
 (defn make-search-function
   "Make a search function with a closure over the dataset.
   Still expensive."
@@ -89,10 +84,10 @@
                                    )))
 
         search-dataset (let [paths (second dataset)
-                              edges (map (fn [{locs :locations _ :params :as edge}]
-                                             [(reduce into (map #(vector (:loc-geo %)) locs))
-                                              (total-cost edge)
-                                              ])
+                              edges (map (fn
+                                           [{locs :locations _ :params :as edge}]
+                                           [(reduce into (map #(vector (:loc-geo %)) locs)) (total-cost edge)]
+                                           )
                                          paths)
                               ]
                           (apply hash-map (reduce into edges))
@@ -108,8 +103,6 @@
                 ))
     )))
 
-
-
 (defn pprint
   ;FIXME : This cookie tastes funky
   "Pretty-prints the path"
@@ -120,8 +113,3 @@
     (reduce text "" path)
     )
   )
-
-
-
-
-
