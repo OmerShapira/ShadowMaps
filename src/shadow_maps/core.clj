@@ -9,66 +9,26 @@
 
 
 ;
-; Data
-;
-
-(defrecord Location [loc-name loc-geo]) ;(Location. "Tel Baruch BCH" [200 200])
-(defrecord Path [locations params])
-
-(let [
-     ; Creating a closure and hiding the variable names
-     rabin (Location. "Rabin SQR" [100 100])
-     masrk (Location. "Masaryk SQR" [85 90])
-     basel (Location. "Basel CPX" [85 160])
-     arloz (Location. "Arlozorov CBS" [140 140])
-     magen (Location. "Magen David SQR" [60 0])
-     azrli (Location. "Azrieli JCT" [160 0])]
-  (def toy-dataset
-  "[Vertices, Edges]
-  Done using hash-sets for pairwise equality"
-  [
-   ; Vertices
-   #{rabin masrk basel arloz magen azrli}
-   ; Weighted Edges
-   #{
-     (Path. #{rabin masrk} {:sun 0.9 :noise 0.6})
-     (Path. #{rabin arloz} {:sun 0.6 :noise 0.4})
-     (Path. #{rabin basel} {:sun 0.4 :noise 0.35})
-     (Path. #{masrk magen} {:sun 0.8 :noise 0.85})
-     (Path. #{arloz azrli} {:sun 1.0 :noise 0.95})
-     (Path. #{magen azrli} {:sun 0.8 :noise 0.9})
-    }
-  ])
- )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;
 ; Metric
 ;
 
-
-(defn shadow-cost
-  "Returns the inconvenience cost of walking in the sun"
-  [edge]
-  (:sun (:params edge))
-  )
+(defn shadow-cost [edge] (:sun   (:params edge)))
+(defn noise-cost  [edge] (:noise (:params edge)))
 
 
 (defn distance
   "Returns the distance on the map trail between begin and end"
   ([edge]
-  (let
-    [{locs :locations _ :params} edge
-     loc-a (:loc-geo(first locs))
-     loc-b (:loc-geo (second locs))
-     ]
-    (distance loc-a loc-b)))
+    (let
+      [{locs :locations _ :params} edge
+       loc-a (:loc-geo(first locs))
+       loc-b (:loc-geo (second locs))
+       ]
+      (distance loc-a loc-b)))
 
   ([a b]
-   (Math/sqrt (reduce + (map #(let [c (- %1 %2)] (* c c)) a b))))
-  )
+     (Math/sqrt (reduce + (map #(let [c (- %1 %2)] (* c c)) a b)))
+   ))
 
 
 ;
@@ -123,10 +83,10 @@
   [dataset distance & heuristics]
 
   (let [total-cost (fn [edge]
-                      (let [d (distance edge)]
-                        (reduce + d  ;sum over
-                                 (map #(* (% edge) d) heuristics) ;the application of each function on edge, times the distance
-                                 )))
+                        (let [d (distance edge)]
+                          (reduce + d  ; distance * (1 + sum of every cost)
+                                   (map #(* (% edge) d) heuristics)
+                                   )))
 
         search-dataset (let [paths (second dataset)
                               edges (map (fn [{locs :locations _ :params :as edge}]

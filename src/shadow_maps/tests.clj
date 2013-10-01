@@ -7,3 +7,11 @@
   [e (first (first(rest toy-dataset)))]
   (total-cost e)
   )
+
+
+(print (pprint (search "Azrieli JCT" "Masaryk SQR")))
+
+
+
+
+
