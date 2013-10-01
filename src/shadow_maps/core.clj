@@ -71,7 +71,7 @@
   )
 
 
-(defn total-cost
+(comment (defn total-cost
   "Heuristic total cost function"
   [edge]
   (let
@@ -80,10 +80,12 @@
     (* d (+ 1 (* 1 s))) ;walking in the sun is twice as expensive
     )
   )
-
+)
 ;
 ; Data translation to an efficient A*
 ;
+
+(comment
 
 (def bake-dataset
   "Makes a dataset out of a datafile"
@@ -98,8 +100,8 @@
     )
   )
 
-(defn name-to-coord [dataset n] (:loc-geo (first (filter #(= (:loc-name %) n) (first dataset)))))
-(defn coord-to-name [dataset c] (:loc-name (first (filter #(= (:loc-geo %) c) (first dataset)))))
+)
+
 
 ;
 ; Algorithm
@@ -141,21 +143,52 @@
 ; Algorithm Wrapper for Execution
 ;
 
+  ;FIXME: These are terribly inneficient
+(defn name-to-coord [dataset n] (:loc-geo (first (filter #(= (:loc-name %) n) (first dataset)))))
+(defn coord-to-name [dataset c] (:loc-name (first (filter #(= (:loc-geo %) c) (first dataset)))))
 
-(defn search
-  "Takes in names from the toy dataset and outputs the least sunny route between them, if one exists"
-  [from to]
-  (let [from-coord (name-to-coord toy-dataset from)
-        to-coord (name-to-coord toy-dataset to)]
-    (map #(coord-to-name toy-dataset %)(A* edge-list distance from-coord to-coord))
-    ))
+
+(defn make-search-function
+  "Make a search function with a closure over the dataset.
+  Still expensive."
+
+  [dataset distance & heuristics]
+
+  (let [total-cost (fn [edge]
+                      (let [d (distance edge)]
+                        (reduce + d  ;sum over
+                                 (map #(* (% edge) d) heuristics) ;the application of each function on edge, times the distance
+                                 )))
+
+        search-dataset (let [paths (second dataset)
+                              edges (map (fn [{locs :locations _ :params :as edge}]
+                                             [(reduce into (map #(vector (:loc-geo %)) locs))
+                                              (total-cost edge)
+                                              ])
+                                         paths)
+                              ]
+                          (apply hash-map(reduce into edges))
+                          )
+        ]
+
+    (fn [from to]
+      (let [from-coord (name-to-coord dataset from)
+            to-coord (name-to-coord dataset to)
+            ]
+           (map #(coord-to-name dataset %)
+                (A* search-dataset distance from-coord to-coord)
+                ))
+    )))
+
+
 
 (defn pprint
   ;FIXME : This cookie tastes funky
   "Pretty-prints the path"
   [path]
   (let [text (fn [x y]
-               (if (= y "") (str "Reach your destination at" x) (str "Go to " x "\n" y)))]
+               (if (= y "") (str "Reach your destination at" x) (str "Go to " x "\n" y))
+               )]
     (reduce text "" path)
     )
   )
